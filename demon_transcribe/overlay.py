@@ -80,7 +80,7 @@ class Overlay:
     def _reposition(self):
         if not self._float_win:
             return
-        self._root.update_idletasks()
+        self._float_win.update_idletasks()
         screen_w = self._root.winfo_screenwidth()
         screen_h = self._root.winfo_screenheight()
         scale = self._get_display_scale()

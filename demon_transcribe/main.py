@@ -223,14 +223,12 @@ class DemonTranscribe:
                 self._history.add(text, duration_sec, self._config.model.name)
                 self._stats.record(text, duration_sec)
 
-                # Refresh dashboard (methods handle thread safety internally)
-                self._dashboard.update_speed(
-                    self._transcriber.last_speed, self._transcriber.last_elapsed
-                )
-                self._dashboard.refresh_stats()
-                self._dashboard.refresh_history()
-
+                # Copy to clipboard first, then batch dashboard updates
                 self._injector.inject(text)
+
+                speed = self._transcriber.last_speed
+                elapsed = self._transcriber.last_elapsed
+                self._dashboard.batch_post_transcription(speed, elapsed)
             else:
                 logger.info("Empty transcription, nothing to inject")
 

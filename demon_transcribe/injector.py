@@ -53,13 +53,13 @@ class TextInjector:
     def _inject_clipboard(self, text: str) -> bool:
         try:
             pyperclip.copy(text)
-            time.sleep(0.2)
+            # time.sleep(0.2)
 
-            _simulate_paste()
+            # _simulate_paste()
 
-            time.sleep(0.3)
+            # time.sleep(0.3)
 
-            logger.info("Injected %d chars via clipboard", len(text))
+            logger.info("Copied %d chars to clipboard (paste manually with Ctrl+V)", len(text))
             return True
         except Exception:
             logger.exception("Clipboard injection failed")

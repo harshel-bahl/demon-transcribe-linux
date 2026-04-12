@@ -444,6 +444,16 @@ class Dashboard:
         if self._root:
             self._root.after(0, self._do_refresh_history)
 
+    def batch_post_transcription(self, speed, elapsed):
+        """Batch all post-transcription dashboard updates into a single Tk callback."""
+        if self._root:
+            self._root.after(0, lambda: self._do_batch_update(speed, elapsed))
+
+    def _do_batch_update(self, speed, elapsed):
+        self._do_update_speed(speed, elapsed)
+        self._do_refresh_stats()
+        self._do_refresh_history()
+
     def update_system_info(self, device: str, compute: str, llm_enabled: bool,
                           llm_connected: bool = False, llm_model: str = None):
         if self._root:
