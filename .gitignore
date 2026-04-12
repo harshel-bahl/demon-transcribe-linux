@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Models (large binary files)
+models/*.bin
+models/*.ggml
+
+# Binaries (whisper-cpp builds)
+bin/
+
+# Logs
+*.log
+
+# Config with local paths (keep config.yaml as template)
+# config.yaml
+
+# History
+history.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp files
+*.tmp
+*.downloading
+.demon_transcribe.lock

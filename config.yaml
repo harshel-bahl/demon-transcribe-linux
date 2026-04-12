@@ -1,0 +1,55 @@
+model:
+  name: large-v3-turbo-q5
+  backend: whisper-cpp
+  device: auto
+  compute_type: int8
+  model_path: null
+  beam_size: 1
+  cpu_threads: 0
+  num_workers: 1
+  prewarm: true
+hotkey:
+  combination: ctrl+shift+space
+audio:
+  sample_rate: 16000
+  channels: 1
+  device: null
+  dtype: int16
+injection:
+  method: clipboard
+  restore_clipboard: true
+  paste_delay_ms: 50
+feedback:
+  beep_on_start: true
+  beep_on_stop: true
+  beep_frequency: 440
+  beep_duration_ms: 100
+transcription:
+  language: null
+  vad_filter: true
+  no_repeat_ngram_size: 3
+  word_timestamps: false
+  temperature: 0.0
+dashboard:
+  width: 500
+  height: 680
+  show_on_startup: false
+overlay:
+  position: bottom
+  dot_size: 8
+  pill_width: 150
+  pill_height: 26
+  screen_margin: 40
+llm:
+  enabled: false
+  api_url: http://localhost:1234/v1/chat/completions
+  model: ''
+  timeout_ms: 3000
+  system_prompt: "You are a dictation formatter. You receive raw speech-to-text output\
+    \ and the name of the active application. Your job:\n1. Fix punctuation, capitalization,\
+    \ and spacing\n2. Expand spoken commands: 'new line' \u2192 newline, 'period'\
+    \ \u2192 '.', 'comma' \u2192 ',', 'question mark' \u2192 '?', 'exclamation point'\
+    \ \u2192 '!', 'open paren' \u2192 '(', 'close paren' \u2192 ')'\n3. If the active\
+    \ app is a code editor (VS Code, terminal, etc.), format code-like dictation appropriately\
+    \ (e.g., 'def foo of x' \u2192 'def foo(x):')\n4. Never add information that wasn't\
+    \ dictated. Never explain. Output ONLY the formatted text."
