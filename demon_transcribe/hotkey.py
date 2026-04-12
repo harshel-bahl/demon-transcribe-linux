@@ -189,13 +189,33 @@ class PushToTalkHotkey:
         import evdev
         import select
 
+        # Build the set of evdev key codes needed for the hotkey combination
+        required_codes = set()
+        for key in self._target_keys:
+            if key in _EVDEV_MODIFIER_NAMES:
+                for variant in _EVDEV_MODIFIER_NAMES[key]:
+                    required_codes.add(evdev.ecodes.ecodes.get(variant, 0))
+            elif key in _EVDEV_SPECIAL_NAMES:
+                required_codes.add(evdev.ecodes.ecodes.get(_EVDEV_SPECIAL_NAMES[key], 0))
+            elif len(key) == 1:
+                required_codes.add(evdev.ecodes.ecodes.get(f"KEY_{key.upper()}", 0))
+        required_codes.discard(0)
+
+        # Only monitor devices that have ALL the keys needed for the hotkey.
+        # This excludes mice, touchpads, power buttons, and anything else
+        # that can't actually produce the hotkey combination.
         devices = []
         for path in evdev.list_devices():
             dev = evdev.InputDevice(path)
             caps = dev.capabilities()
-            # EV_KEY = 1
-            if 1 in caps:
+            if 1 not in caps:
+                continue
+            device_keys = set(caps[1])
+            if required_codes.issubset(device_keys):
                 devices.append(dev)
+                logger.debug("Monitoring device: %s (%s)", dev.name, path)
+            else:
+                logger.debug("Skipping device: %s (%s) — missing hotkey keys", dev.name, path)
 
         if not devices:
             logger.error("No keyboard devices found for evdev")
