@@ -8,6 +8,7 @@ Just a small colored dot:
   - Gray: error
 """
 import logging
+import subprocess
 import tkinter as tk
 from typing import Optional
 
@@ -34,22 +35,29 @@ class Overlay:
         self._dot_id = None
         self._pulse_job = None
         self._size = config.dot_size
+        self._last_geom = ""
+        self._rendered_size = 0
+
+    @staticmethod
+    def _get_display_scale() -> float:
+        """Detect display scale factor from Xft.dpi (set by GNOME from text-scaling-factor)."""
+        try:
+            out = subprocess.check_output(
+                ["xrdb", "-query"], text=True, stderr=subprocess.DEVNULL, timeout=2
+            )
+            for line in out.splitlines():
+                if line.startswith("Xft.dpi:"):
+                    dpi = float(line.split(":")[1].strip())
+                    return dpi / 96.0
+        except Exception:
+            pass
+        return 1.0
 
     def initialize(self):
         self._float_win = tk.Toplevel(self._root)
         self._float_win.overrideredirect(True)
         self._float_win.attributes("-topmost", True)
         self._float_win.attributes("-alpha", 0.85)
-
-        # Position at absolute bottom-right corner
-        self._root.update_idletasks()
-        screen_w = self._root.winfo_screenwidth()
-        screen_h = self._root.winfo_screenheight()
-        pad = 10  # tiny gap from screen edge
-        x = screen_w - self._size - pad
-        y = screen_h - self._size - pad
-
-        self._float_win.geometry(f"{self._size}x{self._size}+{x}+{y}")
         self._float_win.configure(bg="#010101")
 
         try:
@@ -57,12 +65,48 @@ class Overlay:
         except tk.TclError:
             pass
 
-        self._canvas = tk.Canvas(
-            self._float_win, width=self._size, height=self._size,
-            highlightthickness=0, bd=0, bg="#010101",
-        )
-        self._canvas.pack(fill=tk.BOTH, expand=True)
-        self._dot_id = self._canvas.create_oval(0, 0, self._size, self._size, fill="#22c55e", outline="")
+        self._reposition()
+        self._start_reposition_loop()
+
+    def _start_reposition_loop(self):
+        """Periodically recheck screen geometry so the dot stays at the corner
+        when monitors are added/removed or scaling changes."""
+        self._root.after(3000, self._reposition_tick)
+
+    def _reposition_tick(self):
+        self._reposition()
+        self._root.after(3000, self._reposition_tick)
+
+    def _reposition(self):
+        if not self._float_win:
+            return
+        self._root.update_idletasks()
+        screen_w = self._root.winfo_screenwidth()
+        screen_h = self._root.winfo_screenheight()
+        scale = self._get_display_scale()
+        pad = round(10 * scale)
+        size = round(self._size * scale)
+        x = screen_w - size - pad
+        y = screen_h - size - pad
+
+        geom = f"{size}x{size}+{x}+{y}"
+        if geom == self._last_geom:
+            return
+        self._last_geom = geom
+        self._float_win.geometry(geom)
+
+        # Rebuild the canvas when the scaled dot size changes
+        if size != self._rendered_size:
+            self._rendered_size = size
+            if self._canvas:
+                self._canvas.destroy()
+            self._canvas = tk.Canvas(
+                self._float_win, width=size, height=size,
+                highlightthickness=0, bd=0, bg="#010101",
+            )
+            self._canvas.pack(fill=tk.BOTH, expand=True)
+            color = DOT_COLORS.get(self._state, "#22c55e")
+            self._dot_id = self._canvas.create_oval(0, 0, size, size, fill=color, outline="")
 
     def update_state(self, state: DaemonState, extended: bool = False):
         self._state = state
