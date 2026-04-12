@@ -6,6 +6,7 @@ Falls back gracefully to raw text if the LLM is unavailable.
 """
 import json
 import logging
+import os
 import subprocess
 import time
 import urllib.request
@@ -17,7 +18,26 @@ logger = logging.getLogger(__name__)
 
 
 def _get_active_window_title() -> str:
-    """Get the title of the currently focused window via xdotool (Linux/X11)."""
+    """Get the title of the currently focused window."""
+    # On Wayland, xdotool can't get the active window — use gdbus to query GNOME Shell
+    if os.environ.get("XDG_SESSION_TYPE") == "wayland":
+        try:
+            result = subprocess.check_output(
+                ["gdbus", "call", "--session",
+                 "--dest", "org.gnome.Shell",
+                 "--object-path", "/org/gnome/Shell",
+                 "--method", "org.gnome.Shell.Eval",
+                 "global.display.focus_window ? global.display.focus_window.get_title() : ''"],
+                text=True, timeout=2,
+            )
+            # Output format: (true, "'Window Title'")
+            if "true" in result:
+                title = result.split("'", 1)[-1].rsplit("'", 1)[0]
+                return title
+        except Exception:
+            pass
+        return ""
+    # X11 fallback
     try:
         hwnd = subprocess.check_output(
             ["xdotool", "getactivewindow"], text=True, timeout=2

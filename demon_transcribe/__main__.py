@@ -3,13 +3,23 @@ import sys
 import os
 import fcntl
 
-_lock_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".demon_transcribe.lock")
+_lock_path = "/tmp/demon_transcribe.lock"
 _lock_file = open(_lock_path, "w")
 try:
     fcntl.flock(_lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
 except IOError:
-    print("demon-transcribe is already running.")
+    try:
+        with open(_lock_path) as f:
+            old_pid = f.read().strip()
+        print(f"demon-transcribe is already running (PID {old_pid}).")
+    except Exception:
+        print("demon-transcribe is already running.")
     sys.exit(0)
+
+_lock_file.truncate(0)
+_lock_file.seek(0)
+_lock_file.write(str(os.getpid()))
+_lock_file.flush()
 
 from demon_transcribe.main import DemonTranscribe
 

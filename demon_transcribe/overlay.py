@@ -1,5 +1,5 @@
 """
-Floating overlay dot at bottom-right of screen.
+Floating overlay dot at bottom-right corner of screen.
 Just a small colored dot:
   - Green: idle/ready
   - Red (pulsing): recording
@@ -36,24 +36,22 @@ class Overlay:
         self._size = config.dot_size
 
     def initialize(self):
-        margin = self._config.screen_margin
-
         self._float_win = tk.Toplevel(self._root)
         self._float_win.overrideredirect(True)
         self._float_win.attributes("-topmost", True)
         self._float_win.attributes("-alpha", 0.85)
 
-        # Position at bottom-right of screen
+        # Position at absolute bottom-right corner
+        self._root.update_idletasks()
         screen_w = self._root.winfo_screenwidth()
         screen_h = self._root.winfo_screenheight()
-        x = screen_w - self._size - margin
-        y = screen_h - self._size - margin - 60  # offset for taskbar
+        pad = 10  # tiny gap from screen edge
+        x = screen_w - self._size - pad
+        y = screen_h - self._size - pad
 
         self._float_win.geometry(f"{self._size}x{self._size}+{x}+{y}")
         self._float_win.configure(bg="#010101")
 
-        # On Linux/X11, transparent color isn't supported the same way.
-        # Use a shaped window approach instead.
         try:
             self._float_win.attributes("-transparentcolor", "#010101")
         except tk.TclError:

@@ -20,8 +20,8 @@ injection:
   restore_clipboard: true
   paste_delay_ms: 50
 feedback:
-  beep_on_start: true
-  beep_on_stop: true
+  beep_on_start: false
+  beep_on_stop: false
   beep_frequency: 440
   beep_duration_ms: 100
 transcription:
