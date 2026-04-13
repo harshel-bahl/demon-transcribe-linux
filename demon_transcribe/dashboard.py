@@ -146,8 +146,9 @@ class Dashboard:
         self._hw_info = _get_hardware_info()
         self._build_ui()
 
-        self._root.withdraw()
-        self._root.after(500, self._show_minimized)
+        if not self._config.dashboard.show_on_startup:
+            self._root.iconify()
+
 
         import threading
         threading.Thread(target=setup_callback, daemon=True).start()
@@ -556,7 +557,7 @@ class Dashboard:
 
         preview = entry.text[:100] + ("..." if len(entry.text) > 100 else "")
         tk.Label(frame, text=preview, fg=FG, bg=BG_CARD, font=(_FONT, 9),
-                 anchor=tk.W, wraplength=440).pack(fill=tk.X, pady=(1, 0))
+                 anchor=tk.W, wraplength=560).pack(fill=tk.X, pady=(1, 0))
 
         text = entry.text
         for widget in [frame] + frame.winfo_children():
@@ -718,11 +719,6 @@ class Dashboard:
 
     def _minimize(self):
         self._root.iconify()
-
-    def _show_minimized(self):
-        self._root.deiconify()
-        if not self._config.dashboard.show_on_startup:
-            self._root.iconify()
 
     def stop(self):
         if self._root:

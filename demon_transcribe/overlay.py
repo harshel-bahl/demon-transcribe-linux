@@ -71,11 +71,11 @@ class Overlay:
     def _start_reposition_loop(self):
         """Periodically recheck screen geometry so the dot stays at the corner
         when monitors are added/removed or scaling changes."""
-        self._root.after(3000, self._reposition_tick)
+        self._root.after(30000, self._reposition_tick)
 
     def _reposition_tick(self):
         self._reposition()
-        self._root.after(3000, self._reposition_tick)
+        self._root.after(30000, self._reposition_tick)
 
     def _reposition(self):
         if not self._float_win:

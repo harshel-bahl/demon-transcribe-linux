@@ -6,7 +6,7 @@ import threading
 
 import numpy as np
 
-from .audio import AudioRecorder, play_beep
+from .audio import AudioRecorder
 from .config import AppConfig, load_config, save_config
 from .constants import DaemonState
 from .dashboard import Dashboard
@@ -142,8 +142,6 @@ class DemonTranscribe:
                 return
 
         self._set_state(DaemonState.RECORDING)
-        if self._config:
-            play_beep(self._config.feedback, start=True)
 
         try:
             self._recorder.start_recording()
@@ -185,8 +183,6 @@ class DemonTranscribe:
                 return
 
         self._set_state(DaemonState.RECORDING, extended=True)
-        if self._config:
-            play_beep(self._config.feedback, start=True)
         logger.info("Extended listening started")
 
     def _on_extended_stop(self):
@@ -201,8 +197,6 @@ class DemonTranscribe:
     def _finish_recording(self):
         try:
             audio_data = self._recorder.stop_recording()
-            if self._config:
-                play_beep(self._config.feedback, start=False)
 
             if audio_data is None:
                 logger.warning("No audio captured")
