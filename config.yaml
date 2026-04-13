@@ -32,7 +32,7 @@ transcription:
   temperature: 0.0
 dashboard:
   width: 1000
-  height: 680
+  height: 782
   show_on_startup: false
 overlay:
   position: bottom

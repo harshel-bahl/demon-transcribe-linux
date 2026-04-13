@@ -58,7 +58,7 @@ class TranscriptionConfig:
 @dataclass
 class DashboardConfig:
     width: int = 1000
-    height: int = 680
+    height: int = 782
     show_on_startup: bool = False
 
 
