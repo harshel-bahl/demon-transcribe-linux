@@ -557,7 +557,7 @@ class Dashboard:
 
         preview = entry.text[:100] + ("..." if len(entry.text) > 100 else "")
         tk.Label(frame, text=preview, fg=FG, bg=BG_CARD, font=(_FONT, 9),
-                 anchor=tk.W, wraplength=560).pack(fill=tk.X, pady=(1, 0))
+                 anchor=tk.W, wraplength=940).pack(fill=tk.X, pady=(1, 0))
 
         text = entry.text
         for widget in [frame] + frame.winfo_children():
